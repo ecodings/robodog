@@ -26,10 +26,11 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font);font-weight:5
   font-variant-numeric:tabular-nums;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
 .wrap{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+header{display:flex;align-items:center;gap:12px}
+.team{margin-left:auto}
 h1{font-size:1.45rem;font-weight:700;color:var(--navy);margin:0}
 .team{font-size:.95rem;font-weight:700;color:var(--teal)}
-.back{align-self:flex-start;background:transparent;color:var(--muted);font-size:.95rem;padding:6px 0}
+.back{margin-left:auto;background:transparent;color:var(--muted);font-size:.95rem;padding:6px 0}
 .rail{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;list-style:none;margin:0;padding:0}
 .rail li{font-size:.78rem;color:var(--muted);text-align:center;display:flex;flex-direction:column;gap:6px}
 .rail li::before{content:"";height:6px;border-radius:3px;background:var(--line)}
@@ -82,6 +83,16 @@ canvas{width:min(100%,300px);height:auto;image-rendering:pixelated;display:block
 .meter.over{color:var(--bad)} .meter.over .bar span{background:var(--bad)}
 .tips{font-size:.95rem;color:var(--muted);margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:4px}
 footer{display:flex;justify-content:center}
+.card.tight{padding:14px;gap:10px}
+.tight .chips{gap:6px}
+.tight .chips button{font-size:.85rem;padding:6px 10px}
+.tight input{font-size:1.2rem;padding:10px 12px}
+.tight .qrbox{padding:8px}
+.tight canvas{width:min(100%,230px)}
+.tight .meter{font-size:.85rem}
+.hint{font-size:.82rem;color:var(--muted);text-align:center}
+body.maker{padding-block:12px 16px}
+body.maker .wrap{gap:12px}
 @media (prefers-reduced-motion:reduce){.shake{animation:none}.bar span{transition:none}}
 </style>
 </head>
@@ -92,8 +103,8 @@ footer{display:flex;justify-content:center}
   <header>
     <h1>로보독 방탈출</h1>
     <span class="team" id="teamTag"></span>
+    <button class="back" id="homeBtn" hidden>← 처음 화면</button>
   </header>
-  <button class="back" id="homeBtn" hidden>← 처음 화면</button>
   <ol class="rail" id="rail" hidden>
     <li>첫 번째 마당</li><li>C 퍼즐</li><li>두 번째 마당</li><li>금고</li>
   </ol>
@@ -144,7 +155,7 @@ function answerForm(id,onOk,badMsg){
 }
 
 function qrPanel(opts){ // 입력 → 바이트 막대 → QR
-  return `<label for="${opts.id}">${opts.label}</label>
+  return `${opts.label?`<label for="${opts.id}">${opts.label}</label>`:""}
     <input id="${opts.id}" class="${opts.upper?"up":""}" autocomplete="off" spellcheck="false" placeholder="${opts.ph}">
     <div class="meter" id="meter"><span id="bytes">0 / 8 바이트</span><div class="bar"><span id="barFill" style="width:0"></span></div></div>
     <p class="msg bad" id="overMsg" role="status"></p>
@@ -167,6 +178,7 @@ function bindQR(id,upper,storeKey){
 
 function render(){
   chrome();
+  document.body.classList.toggle("maker",S.screen==="maker");
   const g=S.group;
   if(S.screen==="home"){
     view.innerHTML=`<div class="menu">
@@ -178,13 +190,10 @@ function render(){
   }
   else if(S.screen==="maker"){
     const cmds=["RED","GREEN","BLUE","OFF","BARK","HELLO","LOVE","STAND","SIT","안녕"];
-    view.innerHTML=`<div class="card">
-      <span class="eyebrow">QR 만들기</span>
-      <h2>로보독에게 보여줄 QR 코드를 만들어 보세요.</h2>
-      <p class="sub">버튼을 누르거나 직접 입력하세요. 로봇 코드에 적힌 글자와 대소문자까지 똑같아야 해요.</p>
+    view.innerHTML=`<div class="card tight">
       <div class="chips">${cmds.map(c=>`<button data-c="${c}">${c}</button>`).join("")}</div>
-      ${qrPanel({id:"mk",label:"QR에 넣을 글자",ph:"예: BARK",upper:false})}
-      <ul class="tips"><li>영어·숫자는 8자, 한글은 2자까지 (한글 한 글자 = 3바이트)</li><li>화면 밝기를 최대로 올리고, 로봇 카메라 앞 15~20cm에서 잠깐 멈춰 보여주세요.</li></ul></div>`;
+      ${qrPanel({id:"mk",label:"",ph:"글자 입력 (예: BARK)",upper:false})}
+      <p class="hint">영어 8자 · 한글 2자 · 카메라 앞 15~20cm</p></div>`;
     const qp=bindQR("mk",false,KEY+"-maker");
     view.querySelectorAll(".chips button").forEach(b=>b.onclick=()=>qp.set(b.dataset.c));
   }

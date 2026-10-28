@@ -189,10 +189,10 @@ function render(){
     $("#toMission").onclick=()=>show("mission");
   }
   else if(S.screen==="maker"){
-    const cmds=["RED","GREEN","BLUE","OFF","ROBO","HELLO","LOVE","STAND","SIT","안녕"];
+    const cmds=["RED","GREEN","BLUE","OFF","SOUND","HELLO","LOVE","STAND","SIT","안녕"];
     view.innerHTML=`<div class="card tight">
       <div class="chips">${cmds.map(c=>`<button data-c="${c}">${c}</button>`).join("")}</div>
-      ${qrPanel({id:"mk",label:"",ph:"글자 입력 (예: ROBO)",upper:false})}
+      ${qrPanel({id:"mk",label:"",ph:"글자 입력 (예: SOUND)",upper:false})}
       <p class="hint">영어 8자 · 한글 2자 · 카메라 앞 15~20cm</p></div>`;
     const qp=bindQR("mk",false,KEY+"-maker");
     view.querySelectorAll(".chips button").forEach(b=>b.onclick=()=>qp.set(b.dataset.c));
